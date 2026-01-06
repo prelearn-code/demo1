@@ -29,6 +29,12 @@ class Settings(BaseSettings):
         description="生成温度,0表示确定性输出"
     )
 
+    # 调试配置
+    debug_mode: bool = Field(
+        default=False,
+        description="调试模式，保留临时文件并显示详细日志"
+    )
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

@@ -1,16 +1,14 @@
 """
-代码执行沙箱
-使用 subprocess 在本地执行 Python 代码 (警告: 不安全,仅用于演示)
+代码执行沙箱 - Docker 容器隔离
+使用 Docker 容器安全执行 Python 代码
 """
-import subprocess
-import tempfile
-import os
+import docker
 from typing import Tuple
 
 
 def execute_code(code: str, timeout: int = 10) -> Tuple[bool, str]:
     """
-    执行 Python 代码
+    在 Docker 容器中安全执行 Python 代码
 
     Args:
         code: 要执行的 Python 代码
@@ -19,40 +17,39 @@ def execute_code(code: str, timeout: int = 10) -> Tuple[bool, str]:
     Returns:
         (是否成功, 输出或错误信息)
     """
-    # 创建临时文件
-    with tempfile.NamedTemporaryFile(
-        mode='w',
-        suffix='.py',
-        delete=False,
-        encoding='utf-8'
-    ) as f:
-        f.write(code)
-        temp_file = f.name
-
     try:
-        # 执行代码
-        result = subprocess.run(
-            ['python', temp_file],
-            capture_output=True,
-            text=True,
-            timeout=timeout
+        # 初始化 Docker 客户端
+        client = docker.from_env()
+
+        # 在隔离容器中执行代码
+        result = client.containers.run(
+            image="python:3.11-alpine",  # 轻量级镜像
+            command=["python", "-c", code],
+            remove=True,  # 执行后自动删除容器
+            mem_limit="128m",  # 限制内存 128MB
+            cpu_quota=50000,  # 限制 CPU (50%)
+            network_disabled=True,  # 禁止网络访问（安全）
+            read_only=True,  # 只读文件系统（防止篡改）
+            timeout=timeout,
+            stdout=True,
+            stderr=True
         )
 
-        # 检查执行结果
-        if result.returncode == 0:
-            return True, result.stdout
-        else:
-            return False, result.stderr
+        # 返回成功和输出
+        return True, result.decode('utf-8')
 
-    except subprocess.TimeoutExpired:
-        return False, f"执行超时 (>{timeout}秒)"
+    except docker.errors.ContainerError as e:
+        # 容器执行错误（代码报错）
+        return False, e.stderr.decode('utf-8')
+
+    except docker.errors.ImageNotFound:
+        return False, (
+            "Docker 镜像未找到\n"
+            "请先拉取镜像: docker pull python:3.11-alpine"
+        )
+
+    except docker.errors.APIError as e:
+        return False, f"Docker API 错误: {str(e)}\n请确保 Docker 服务已启动"
 
     except Exception as e:
-        return False, f"执行异常: {str(e)}"
-
-    finally:
-        # 清理临时文件
-        try:
-            os.unlink(temp_file)
-        except:
-            pass
+        return False, f"执行错误: {str(e)}"

@@ -71,7 +71,7 @@ def executor_node(state: AgentState) -> AgentState:
         state["error"] = "没有代码可执行"
         return state
 
-    # 执行代码
+    # 使用 Docker 沙箱执行代码（安全隔离）
     success, output = execute_code(code)
 
     if success:
