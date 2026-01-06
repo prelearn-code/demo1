@@ -1,0 +1,15 @@
+# Core frameworks
+langgraph>=0.0.10
+langchain>=0.1.0
+langchain-core
+
+# LLM interface
+langchain-ollama
+
+# Configuration
+pydantic
+python-dotenv
+
+# Debugging and visualization (optional)
+langsmith
+ipython
