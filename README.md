@@ -15,7 +15,7 @@
 - 🔍 **执行追踪**: 基于 AST 的轻量级代码分析，无需运行即可调试
 - 🔀 **错误路由**: 根据错误类型（语法/导入/运行时/逻辑/超时）智能选择修复策略
 - 🤖 **多模型支持**: 灵活切换 5 种代码模型（Qwen/DeepSeek/CodeLlama）
-- 🌍 **多语言支持**: 支持 Python, JavaScript, Java, C++, Go, Rust 等 8 种语言 ⭐
+- 🌍 **多语言支持（实验性）**: 独立演示支持 Python, JavaScript, Java, C++, Go, Rust 等 8 种语言 ⭐
 
 ## 📊 效果提升
 
@@ -135,11 +135,13 @@ TEMPERATURE=0
 
 ### 4. 运行程序
 
-#### 主程序（已集成阶段三功能）
+#### 主程序（Python 代码生成，已集成阶段三功能）
 
 ```bash
 python main.py
 ```
+
+**注意**: 主程序目前仅支持 Python 代码生成和执行。
 
 #### 阶段三功能演示
 
@@ -364,7 +366,7 @@ container = client.containers.run(
 ## 📖 文档
 
 - [阶段三设计文档](docs/STAGE_3_PLAN.md) - 详细的技术设计和实现方案
-- [多语言支持指南](MULTI_LANGUAGE_GUIDE.md) - 8 种编程语言的执行说明 ⭐
+- [多语言支持指南](MULTI_LANGUAGE_GUIDE.md) - 8 种编程语言的执行说明（实验性演示功能）⭐
 
 ## 🔍 常见问题
 
@@ -428,13 +430,14 @@ print(stats)
 
 ## 🚧 路线图
 
-- [x] 基础代码生成和执行
+- [x] 基础代码生成和执行（Python）
 - [x] Docker 沙箱隔离
 - [x] 智能规则库
 - [x] 执行追踪
 - [x] 错误路由
 - [x] 多模型支持
-- [x] 多语言支持（8 种语言）⭐
+- [x] 多语言支持演示（8 种语言，独立 demo）⭐
+- [ ] 多语言支持集成到主程序
 - [ ] HumanEval 基准测试
 - [ ] 可视化工作流（LangGraph Studio）
 - [ ] Web UI 界面
