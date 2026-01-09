@@ -63,7 +63,13 @@ def main():
         "code": None,
         "execution_result": None,
         "error": None,
-        "iterations": 0
+        "iterations": 0,
+        # 阶段三新增字段
+        "structured_error": None,
+        "route_result": None,
+        "test_input": None,
+        "reflection_history": [],
+        "matched_rule_id": None
     }
 
     # 执行图
