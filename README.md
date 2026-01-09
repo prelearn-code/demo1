@@ -15,6 +15,7 @@
 - 🔍 **执行追踪**: 基于 AST 的轻量级代码分析，无需运行即可调试
 - 🔀 **错误路由**: 根据错误类型（语法/导入/运行时/逻辑/超时）智能选择修复策略
 - 🤖 **多模型支持**: 灵活切换 5 种代码模型（Qwen/DeepSeek/CodeLlama）
+- 🌍 **多语言支持**: 支持 Python, JavaScript, Java, C++, Go, Rust 等 8 种语言 ⭐
 
 ## 📊 效果提升
 
@@ -29,9 +30,10 @@
 
 ```
 coding-agent/
-├── main.py                      # 主程序入口
+├── main.py                      # 主程序入口（Python）
 ├── demo_stage3.py               # 阶段三功能演示（综合）
 ├── demo_dry_runner.py           # 执行追踪专项演示
+├── demo_multi_language.py       # 多语言执行演示 ⭐
 ├── requirements.txt             # Python 依赖
 ├── .env                         # 环境配置
 │
@@ -61,8 +63,10 @@ coding-agent/
 │   │   └── model_manager.py     # 多模型支持
 │   │
 │   └── tools/                   # 工具层
-│       ├── sandbox.py           # Docker 代码执行
-│       └── parser.py            # 代码提取解析
+│       ├── sandbox.py           # Docker 代码执行（Python）
+│       ├── parser.py            # 代码提取解析
+│       ├── multi_language_sandbox.py  # 多语言执行 ⭐
+│       └── multi_language_parser.py   # 多语言代码提取 ⭐
 │
 └── docs/
     └── STAGE_3_PLAN.md          # 阶段三设计文档
@@ -145,6 +149,9 @@ python demo_stage3.py
 
 # 执行追踪专项演示（6个场景）
 python demo_dry_runner.py
+
+# 多语言执行演示（Python/JS/C++/Go/Rust 等）⭐
+python demo_multi_language.py
 ```
 
 ## 💡 使用示例
@@ -357,6 +364,7 @@ container = client.containers.run(
 ## 📖 文档
 
 - [阶段三设计文档](docs/STAGE_3_PLAN.md) - 详细的技术设计和实现方案
+- [多语言支持指南](MULTI_LANGUAGE_GUIDE.md) - 8 种编程语言的执行说明 ⭐
 
 ## 🔍 常见问题
 
@@ -426,6 +434,7 @@ print(stats)
 - [x] 执行追踪
 - [x] 错误路由
 - [x] 多模型支持
+- [x] 多语言支持（8 种语言）⭐
 - [ ] HumanEval 基准测试
 - [ ] 可视化工作流（LangGraph Studio）
 - [ ] Web UI 界面
