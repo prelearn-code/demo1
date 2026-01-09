@@ -13,6 +13,8 @@ from .prompts import (
 from .errors import ErrorParser, ReflectionEntry
 from ..llm import get_llm
 from ..tools import execute_code, extract_code
+from ..tools.multi_language_sandbox import execute_code_multi_language
+from ..tools.multi_language_parser import extract_code_with_language, language_name_to_standard
 from ..strategies import ErrorRouter
 from ..learning import RuleBase
 
@@ -23,7 +25,7 @@ _error_router = ErrorRouter(_rule_base)
 
 def coder_node(state: AgentState) -> AgentState:
     """
-    Coder 节点: 生成代码
+    Coder 节点: 生成代码（支持多语言）
 
     Args:
         state: 当前状态
@@ -47,8 +49,19 @@ def coder_node(state: AgentState) -> AgentState:
     ]
     response = llm.invoke(messages)
 
-    # 提取代码
-    code = extract_code(response.content)
+    # 【多语言支持】尝试提取带语言标识的代码块
+    code, lang_tag = extract_code_with_language(response.content)
+
+    # 如果没有提取到代码，使用原始方法
+    if not code:
+        code = extract_code(response.content)
+        lang_tag = None
+
+    # 标准化语言标识
+    if lang_tag:
+        detected_lang = language_name_to_standard(lang_tag)
+        state["language_hint"] = detected_lang  # 保存语言提示
+        print(f"[Coder] 检测到语言标识: {detected_lang}")
 
     # 更新状态
     state["code"] = code
@@ -56,14 +69,17 @@ def coder_node(state: AgentState) -> AgentState:
     state["iterations"] += 1
 
     print(f"[Coder] 代码已生成 (迭代 {state['iterations']})")
-    print(f"```python\n{code}\n```")
+
+    # 根据语言标识显示代码
+    display_lang = lang_tag if lang_tag else "python"
+    print(f"```{display_lang}\n{code}\n```")
 
     return state
 
 
 def executor_node(state: AgentState) -> AgentState:
     """
-    Executor 节点: 执行代码
+    Executor 节点: 执行代码（支持多语言自动检测）
 
     Args:
         state: 当前状态
@@ -78,8 +94,39 @@ def executor_node(state: AgentState) -> AgentState:
         state["error"] = "没有代码可执行"
         return state
 
-    # 使用 Docker 沙箱执行代码（安全隔离）
-    success, output = execute_code(code)
+    # 【多语言支持】使用多语言沙箱自动检测并执行
+    # 如果有语言提示，可以传入 language 参数，否则自动检测
+    language_hint = state.get("language_hint")
+
+    # 尝试将语言提示转换为 Language 枚举
+    language_enum = None
+    if language_hint:
+        try:
+            from ..tools.multi_language_sandbox import Language
+            # 尝试匹配语言
+            lang_map = {
+                'python': Language.PYTHON,
+                'javascript': Language.JAVASCRIPT,
+                'typescript': Language.TYPESCRIPT,
+                'java': Language.JAVA,
+                'cpp': Language.CPP,
+                'c': Language.C,
+                'go': Language.GO,
+                'rust': Language.RUST,
+            }
+            language_enum = lang_map.get(language_hint.lower())
+        except:
+            pass
+
+    # 执行代码
+    success, output, detected_language = execute_code_multi_language(
+        code,
+        language=language_enum  # None 则自动检测
+    )
+
+    # 保存检测到的语言
+    state["detected_language"] = detected_language.value
+    print(f"[Executor] 执行语言: {detected_language.value}")
 
     if success:
         print(f"[Executor] ✓ 执行成功")

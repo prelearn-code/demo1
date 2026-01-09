@@ -21,6 +21,8 @@ class AgentState(TypedDict):
         test_input: 测试输入，用于 dry run（新增）
         reflection_history: 反思历史记录（新增）
         matched_rule_id: 匹配的规则ID（新增）
+        language_hint: 代码块中的语言标识（多语言支持）
+        detected_language: 实际检测到的执行语言（多语言支持）
     """
     messages: List[BaseMessage]
     code: Optional[str]
@@ -33,3 +35,6 @@ class AgentState(TypedDict):
     test_input: Optional[Dict[str, Any]]  # 测试输入
     reflection_history: Optional[List[Any]]  # ReflectionEntry 列表
     matched_rule_id: Optional[str]  # 匹配的规则ID
+    # 多语言支持字段
+    language_hint: Optional[str]  # LLM 标注的语言
+    detected_language: Optional[str]  # 自动检测的语言
